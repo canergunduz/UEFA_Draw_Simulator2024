@@ -1,243 +1,133 @@
 import streamlit as st
 import pandas as pd
+import random
 
-st.set_page_config(layout="wide")
-
-st.title("Euro 2024 Torba Simülasyonu")
-
-col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
-
-custom_css = """
-<style>
-div[data-baseweb="input"] input[type="number"] {
-    width: 70px;  /* İstediğiniz genişliği burada belirleyin */
+# List of 29 existing teams and their points
+teams = {
+    "Team": ["Manchester City", "Bayern München", "Real Madrid", "Paris Saint-Germain", "Liverpool",
+             "Internazionale", "Borussia Dortmund", "RB Leipzig", "FC Barcelona", "Bayer Leverkusen",
+             "Atlético Madrid", "Atalanta", "Juventus", "Benfica", "Arsenal", "Club Brugge",
+             "Shakhtar Donetsk", "AC Milan", "Feyenoord", "Sporting CP Lisbon", "PSV Eindhoven",
+             "Celtic", "AS Monaco", "Aston Villa", "Sturm Graz", "Bologna", "Girona",
+             "Stuttgart", "Brest"],
+    "Points": [148, 144, 136, 116, 114, 101, 97, 97, 91, 90, 89, 81, 80, 79, 72, 64, 63, 59, 57, 54.5,
+               54, 32, 24, 20.86, 14.5, 18.056, 17.897, 17.324, 13.366],
+    "Country": ["England", "Germany", "Spain", "France", "England",
+                "Italy", "Germany", "Germany", "Spain", "Germany",
+                "Spain", "Italy", "Italy", "Portugal", "England", "Belgium",
+                "Ukraine", "Italy", "Netherlands", "Portugal", "Netherlands",
+                "Scotland", "France", "England", "Austria", "Italy", "Spain",
+                "Germany", "France"]
 }
-</style>
-"""
 
-# CSS stilini uygula
-st.markdown(custom_css, unsafe_allow_html=True)
+# List of new matchups
+matchups = {
+    "Match1": {"team1": "Slavia Praha", "points1": 53, "country1": "Czech Republic",
+               "team2": "Lille OSC", "points2": 47, "country2": "France"},
+    "Match2": {"team1": "FC Salzburg", "points1": 50, "country1": "Austria",
+               "team2": "Dynamo Kyiv", "points2": 26.5, "country2": "Ukraine"},
+    "Match3": {"team1": "Dinamo Zagreb", "points1": 50, "country1": "Croatia",
+               "team2": "Qarabag FK", "points2": 33, "country2": "Azerbaijan"},
+    "Match4": {"team1": "Red Star Belgrade", "points1": 40, "country1": "Serbia",
+               "team2": "Bodø/Glimt", "points2": 28, "country2": "Norway"},
+    "Match5": {"team1": "Young Boys", "points1": 34.5, "country1": "Switzerland",
+               "team2": "Galatasaray", "points2": 31.5, "country2": "Turkey"},
+    "Match6": {"team1": "Slovan Bratislava", "points1": 30.5, "country1": "Slovakia",
+               "team2": "FC Midtjylland", "points2": 25.5, "country2": "Denmark"},
+    "Match7": {"team1": "Sparta Praha", "points1": 22.5, "country1": "Czech Republic",
+               "team2": "Malmö FF", "points2": 18.5, "country2": "Sweden"}
+}
+
+# List of selected winner teams (using Streamlit's session_state to retain selections)
+if 'winners' not in st.session_state:
+    st.session_state.winners = {}
+
+# Create dropdown menus for each matchup
+st.title("Matchups")
+for matchup, details in matchups.items():
+    team1 = details["team1"]
+    points1 = details["points1"]
+    country1 = details["country1"]
+    team2 = details["team2"]
+    points2 = details["points2"]
+    country2 = details["country2"]
+
+    selected_team = st.selectbox(f"{matchup}: {team1} ({country1}) vs {team2} ({country2})",
+                                 options=[team1, team2],
+                                 key=f"{matchup}_selectbox")
+
+    # Update the winner team
+    if selected_team == team1:
+        st.session_state.winners[matchup] = {"Team": team1, "Points": points1, "Country": country1}
+    else:
+        st.session_state.winners[matchup] = {"Team": team2, "Points": points2, "Country": country2}
+
+# Add selected winner teams to the existing teams list
+for winner in st.session_state.winners.values():
+    if winner["Team"] not in teams["Team"]:
+        teams["Team"].append(winner["Team"])
+        teams["Points"].append(winner["Points"])
+        teams["Country"].append(winner["Country"])
+
+# Create a DataFrame for all teams
+df = pd.DataFrame(teams)
+
+# Sort teams by points in descending order
+df_sorted = df.sort_values(by="Points", ascending=False).reset_index(drop=True)
+
+# Split into 9-team groups
+pot1 = df_sorted.iloc[:9]
+pot2 = df_sorted.iloc[9:18]
+pot3 = df_sorted.iloc[18:27]
+pot4 = df_sorted.iloc[27:]
+
+# Display the teams in 4 different columns
+st.title("Teams Distribution into Pots")
+
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    gal, tr = st.columns([0.5, 0.5])
-    gal_value = gal.number_input("🏴󠁧󠁢󠁷󠁬󠁳󠁿 Galler", min_value=0, max_value=10, step=1)
-    tr_value = tr.number_input("🇹🇷 Türkiye", min_value=0, max_value=10, step=1)
-    text = ''' --- '''
-    st.markdown(text)
-    hs5, as5 = st.columns([0.5, 0.5])
-    hir_value = hs5.number_input("🇭🇷 Hırvatistan", min_value=0, max_value=10, step=1)
-    erm_value = as5.number_input("🇦🇲 Ermenistan", min_value=0, max_value=10, step=1)
-    st.markdown(text)
-    hs8, as8 = st.columns([0.5, 0.5])
-    rom_value = hs8.number_input("🇷🇴 Romanya", min_value=0, max_value=10, step=1)
-    swi_value = as8.number_input("🇨🇭 İsviçre", min_value=0, max_value=10, step=1)
-    st.markdown(text)
-    hs9, as9 = st.columns([0.5, 0.5])
-    ceb_value = hs9.number_input("🇬🇮 Cebelitarık", min_value=0, max_value=10, step=1)
-    hol_value = as9.number_input("🇳🇱 Hollanda", min_value=0, max_value=10, step=1)
+    st.header("Pot 1")
+    st.dataframe(pot1)
 
 with col2:
-    data = {
-        'Rnk': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-        'Grp': ['J', 'B', 'A', 'F', 'C', 'G', 'D', 'H', 'E', 'I',
-                'F', 'A', 'J', 'B', 'G', 'D', 'C', 'H', 'E', 'I', 'D'],
-        'Team': ['Portekiz', 'Fransa', 'İspanya', 'Belçika', 'İngiltere',
-                 'Macaristan', 'Türkiye', 'Danimarka', 'Arnavutluk', 'Romanya',
-                 'Avusturya', 'İskoçya', 'Slovenya', 'Slovakya', 'Çekya',
-                 'Hollanda', 'İtalya', 'Sırbistan', 'Hırvatistan', 'İsviçre',
-                 'Galler', ],
-        'P': [24, 21, 21, 20, 20, 18, 16, 16, 15, 13,
-              19, 17, 16, 16, 15, 15, 14, 14, 13, 11, 11],
-        'Av.': [28, 26, 20, 18, 18, 9, 7, 4, 8, 4,
-                10, 9, 5, 5, 6, 4, 7, 6, 8, 8, 0],
-        'Siralama': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3],
-    }
-
-    ct = pd.DataFrame(data)
-    # Yeni "Grp_Rnk" sütunu ekleyerek istenilen değerleri atayalım
-    # ct['Siralama'] = pd.cut(ct['Rnk'], bins=[0, 10, 20, float('inf')], labels=[1, 2, 3], right=False).astype(int)
-
-    # Türkiye
-    if tr_value > gal_value:
-        ct.loc[ct['Team'] == 'Türkiye', 'P'] += 3
-    elif tr_value == gal_value:
-        ct.loc[ct['Team'] == 'Türkiye', 'P'] += 1
-    elif (tr_value < gal_value) & (erm_value < hir_value):
-        ct.loc[ct['Team'] == 'Türkiye', 'Siralama'] = 2
-        ct.loc[ct['Team'] == 'Hırvatistan', 'Siralama'] = 1
-    else:
-        ct.loc[ct['Team'] == 'Türkiye', 'P'] += 0
-
-    # Romanya
-    if rom_value > swi_value:
-        ct.loc[ct['Team'] == 'Romanya', 'P'] += 3
-    elif rom_value == swi_value:
-        ct.loc[ct['Team'] == 'Romanya', 'P'] += 1
-    elif rom_value < swi_value:
-        ct.loc[ct['Team'] == 'Romanya', 'Siralama'] = 2
-        ct.loc[ct['Team'] == 'İsviçre', 'Siralama'] = 1
-    else:
-        ct.loc[ct['Team'] == 'Romanya', 'P'] += 0
-
-    # Hollanda
-    if ceb_value < hol_value:
-        ct.loc[ct['Team'] == 'Hollanda', 'P'] += 3
-    elif ceb_value == hol_value:
-        ct.loc[ct['Team'] == 'Hollanda', 'P'] += 1
-    else:
-        ct.loc[ct['Team'] == 'Hollanda', 'P'] += 0
-
-    # Hırvatistan
-    if (gal_value > tr_value) & (erm_value < hir_value):
-        ct.loc[ct['Team'] == 'Türkiye', 'Siralama'] = 2
-        ct.loc[ct['Team'] == 'Hırvatistan', 'Siralama'] = 1
-        ct.loc[ct['Team'] == 'Hırvatistan', 'P'] += 3
-    elif (hir_value > erm_value) & (gal_value <= tr_value):
-        ct.loc[ct['Team'] == 'Hırvatistan', 'P'] += 3
-    elif (hir_value == erm_value) & (gal_value > tr_value):
-        ct.loc[ct['Team'] == 'Hırvatistan', 'P'] += 1
-        ct.loc[ct['Team'] == 'Hırvatistan', 'Siralama'] = 3
-        ct.loc[ct['Team'] == 'Galler', 'Siralama'] = 2
-    elif (hir_value == erm_value) & (gal_value <= tr_value):
-        ct.loc[ct['Team'] == 'Hırvatistan', 'P'] += 1
-    else:
-        ct.loc[ct['Team'] == 'Hırvatistan', 'P'] += 0
-
-    # İsviçre
-    if swi_value > rom_value:
-        ct.loc[ct['Team'] == 'İsviçre', 'P'] += 3
-        ct.loc[ct['Team'] == 'Romanya', 'Siralama'] = 2
-        ct.loc[ct['Team'] == 'İsviçre', 'Siralama'] = 1
-    elif rom_value == swi_value:
-        ct.loc[ct['Team'] == 'İsviçre', 'P'] += 1
-    else:
-        ct.loc[ct['Team'] == 'İsviçre', 'P'] += 0
-
-    # Galler
-    if (gal_value > tr_value) & (erm_value >= hir_value):
-        ct.loc[ct['Team'] == 'Galler', 'Siralama'] = 2
-        ct.loc[ct['Team'] == 'Hırvatistan', 'Siralama'] = 3
-        ct.loc[ct['Team'] == 'Galler', 'P'] += 3
-    elif (hir_value > erm_value) & (gal_value > tr_value):
-        ct.loc[ct['Team'] == 'Galler', 'P'] += 3
-    elif gal_value == tr_value:
-        ct.loc[ct['Team'] == 'Galler', 'P'] += 1
-    else:
-        ct.loc[ct['Team'] == 'Galler', 'P'] += 0
-
-    ct.loc[ct['Team'] == 'Türkiye', 'Av.'] += tr_value - gal_value
-    ct.loc[ct['Team'] == 'Galler', 'Av.'] += gal_value - tr_value
-    ct.loc[ct['Team'] == 'Hırvatistan', 'Av.'] += hir_value - erm_value
-    ct.loc[ct['Team'] == 'Romanya', 'Av.'] += rom_value - swi_value
-    ct.loc[ct['Team'] == 'İsviçre', 'Av.'] += swi_value - rom_value
-    ct.loc[ct['Team'] == 'Hollanda', 'Av.'] += hol_value - ceb_value
-
-    ct_sorted = ct.sort_values(["Siralama", "P", "Av."], ascending=[True, False, False])
-    ct_sorted.drop(['Rnk'], axis=1, inplace=True)
-
-    table = ct_sorted.style.apply(lambda x: ['background: lightblue' if i < 5 else '' for i, val in enumerate(x.index)],
-                                  axis=0)\
-        .apply(lambda x: ['background: lightgreen' if 5 <= i < 11 else '' for i, val in enumerate(x.index)], axis=0) \
-        .apply(lambda x: ['background: wheat' if 11 <= i < 17 else '' for i, val in enumerate(x.index)], axis=0) \
-        .apply(lambda x: ['background: lightcoral' if 17 <= i <= 19 else '' for i, val in enumerate(x.index)], axis=0) \
-        .apply(lambda x: ['background: lightgray' if 19 < i else '' for i, val in enumerate(x.index)], axis=0)
-
-# CSS to inject contained in a string
-    hide_table_row_index = """
-                <style>
-                thead tr th:first-child {display:none}
-                tbody th {display:none}
-                </style>
-                """
-    st.markdown(hide_table_row_index, unsafe_allow_html=True)
-
-    st.table(table)
+    st.header("Pot 2")
+    st.dataframe(pot2)
 
 with col3:
+    st.header("Pot 3")
+    st.dataframe(pot3)
 
-    hide_table_row_index = """
-                <style>
-                thead tr th:first-child {display:none}
-                tbody th {display:none}
-                </style>
-                """
-    st.markdown(hide_table_row_index, unsafe_allow_html=True)
+with col4:
+    st.header("Pot 4")
+    st.dataframe(pot4)
 
-    s1 = dict(selector='th', props=[('text-align', 'center')])
-    s2 = dict(selector='td', props=[('text-align', 'center')])
+# Selected team and matchups are stored in session_state
+if 'choosen' not in st.session_state:
+    st.session_state.choosen = None
 
-    col1, col2, col3, col4 = st.columns([0.25, 0.25, 0.25, 0.25])
+# Team selection
+choosen = st.selectbox(
+    "Which team would you like to choose?",
+    options=df_sorted["Team"],
+    key="team_selectbox"
+)
 
-    pot1 = ct_sorted[["Team"]].iloc[0:5]
-    new_row = pd.DataFrame({'Team': 'Almanya'}, index=[0])
-    pot1 = pd.concat([new_row, pot1.loc[:]]).reset_index(drop=True)
-    pot2 = ct_sorted[["Team"]].iloc[5:11]
-    pot3 = ct_sorted[["Team"]].iloc[11:17]
-    pot4 = ct_sorted[["Team"]].iloc[17:20]
+# Select 2 teams from each pot and prevent matching with the same country
+selected_teams = []
 
-    last_row_team = ct_sorted.iloc[-1]['Team']
+for pot in [pot1, pot2, pot3, pot4]:
+    teams_from_pot = [team for team in pot.to_dict('records') if team["Team"] != choosen and team["Country"] != df_sorted[df_sorted["Team"] == choosen]["Country"].values[0]]
+    if len(teams_from_pot) >= 2:
+        selected_teams_sample = random.sample(teams_from_pot, 2)
+        # First team plays at home, second team plays away
+        selected_teams.append((choosen, selected_teams_sample[0]["Team"]))  # Home team
+        selected_teams.append((selected_teams_sample[1]["Team"], choosen))  # Away team
 
-    if last_row_team == 'Hırvatistan':
-        po_df = pd.DataFrame({
-            'Team': [
-                '🇭🇷󠁧󠁢󠁷 / 🇪🇪 / 🇵🇱 / 🇮🇸',
-                '🇮🇱 / 🇺🇦 / 🇧🇦 / 🇫🇮',
-                '🇬🇪 / 🇱🇺 / 🇬🇷 / 🇰🇿'
-            ]
-        })
-    else:
-        po_df = pd.DataFrame({
-            'Team': [
-                '🏴󠁧󠁢󠁷󠁬󠁳󠁿 / 🇪🇪 / 🇵🇱 / 🇮🇸',
-                '🇮🇱 / 🇺🇦 / 🇧🇦 / 🇫🇮',
-                '🇬🇪 / 🇱🇺 / 🇬🇷 / 🇰🇿'
-            ]
-        })
-
-    pot4 = pd.concat([pot4, po_df], axis=0)
-
-    # Pot 1 tablosunu oluşturun
-    with col1:
-        pot1.rename(columns={'Team': 'Pot 1 Takımları'}, inplace=True)
-        pot1_style = pot1.style.set_table_styles([
-            {'selector': 'thead', 'props': [('background-color', 'lightblue'), ('color', 'white')]},
-            {'selector': 'tbody', 'props': [('background-color', 'lightblue')]},
-            {'selector': 'th', 'props': [('text-align', 'center'), ('font-weight', 'bold')]},
-            {'selector': 'td', 'props': [('text-align', 'center')]},
-        ]).hide(axis=0)
-        st.table(pot1_style)
-
-    # Pot 2 tablosunu oluşturun
-    with col2:
-        pot2.rename(columns={'Team': 'Pot 2 Takımları'}, inplace=True)
-        pot2_style = pot2.style.set_table_styles([
-            {'selector': 'thead', 'props': [('background-color', 'lightgreen'), ('color', 'white')]},
-            {'selector': 'tbody', 'props': [('background-color', 'lightgreen')]},
-            {'selector': 'th', 'props': [('text-align', 'center'), ('font-weight', 'bold')]},
-            {'selector': 'td', 'props': [('text-align', 'center')]},
-        ]).hide(axis=0)
-        st.table(pot2_style)
-
-    # Pot 3 tablosunu oluşturun
-    with col3:
-        pot3.rename(columns={'Team': 'Pot 3 Takımları'}, inplace=True)
-        pot3_style = pot3.style.set_table_styles([
-            {'selector': 'thead', 'props': [('background-color', 'wheat'), ('color', 'white')]},
-            {'selector': 'tbody', 'props': [('background-color', 'wheat')]},
-            {'selector': 'th', 'props': [('text-align', 'center'), ('font-weight', 'bold')]},
-            {'selector': 'td', 'props': [('text-align', 'center')]},
-        ]).hide(axis=0)
-        st.table(pot3_style)
-
-    # Pot 4 tablosunu oluşturun
-    with col4:
-        pot4.rename(columns={'Team': 'Pot 4 Takımları'}, inplace=True)
-        pot4_style = pot4.style.set_table_styles([
-            {'selector': 'thead', 'props': [('background-color', 'lightcoral'), ('color', 'white')]},
-            {'selector': 'tbody', 'props': [('background-color', 'lightcoral')]},
-            {'selector': 'th', 'props': [('text-align', 'center'), ('font-weight', 'bold')]},
-            {'selector': 'td', 'props': [('text-align', 'center')]},
-        ]).hide(axis=0)
-        st.table(pot4_style)
+# Display results
+st.title(f"Random Matchups for {choosen}")
+st.write(f"Selected team: {choosen}")
+st.write("Fixture:")
+random.shuffle(selected_teams)
+for idx, (home, away) in enumerate(selected_teams, start=1):
+    st.write(f"Match {idx}: {home} vs {away}")
