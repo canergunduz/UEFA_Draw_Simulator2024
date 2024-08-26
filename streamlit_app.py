@@ -158,14 +158,25 @@ if tournament_selected == "UCL":
         key="team_selectbox"
     )
 
-    # Select 2 teams from each pot and prevent matching with the same country
+    # Initialize a dictionary to keep track of how many teams from each country have been selected
+    country_count = {}
+
     selected_teams = []
 
     for pot in [pot1, pot2, pot3, pot4]:
         teams_from_pot = [team for team in pot.to_dict('records') if team["Team"] != choosen and team["Country"] !=
                           df_sorted[df_sorted["Team"] == choosen]["Country"].values[0]]
+
+        # Filter out teams from countries that already have 2 teams selected
+        teams_from_pot = [team for team in teams_from_pot if country_count.get(team["Country"], 0) < 2]
+
         if len(teams_from_pot) >= 2:
             selected_teams_sample = random.sample(teams_from_pot, 2)
+
+            # Update the country count for each selected team
+            for team in selected_teams_sample:
+                country_count[team["Country"]] = country_count.get(team["Country"], 0) + 1
+
             # First team plays at home, second team plays away
             selected_teams.append((choosen, selected_teams_sample[0]["Team"]))  # Home team
             selected_teams.append((selected_teams_sample[1]["Team"], choosen))  # Away team
@@ -192,7 +203,6 @@ if tournament_selected == "UCL":
 
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    #random.shuffle(final_fixture)  # Optionally shuffle the final fixture
     for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
@@ -342,14 +352,25 @@ elif tournament_selected == "UEL":
         key="team_selectbox"
     )
 
-    # Select 2 teams from each pot and prevent matching with the same country
+    # Initialize a dictionary to keep track of how many teams from each country have been selected
+    country_count = {}
+
     selected_teams = []
 
     for pot in [pot1, pot2, pot3, pot4]:
         teams_from_pot = [team for team in pot.to_dict('records') if team["Team"] != choosen and team["Country"] !=
                           df_sorted[df_sorted["Team"] == choosen]["Country"].values[0]]
+
+        # Filter out teams from countries that already have 2 teams selected
+        teams_from_pot = [team for team in teams_from_pot if country_count.get(team["Country"], 0) < 2]
+
         if len(teams_from_pot) >= 2:
             selected_teams_sample = random.sample(teams_from_pot, 2)
+
+            # Update the country count for each selected team
+            for team in selected_teams_sample:
+                country_count[team["Country"]] = country_count.get(team["Country"], 0) + 1
+
             # First team plays at home, second team plays away
             selected_teams.append((choosen, selected_teams_sample[0]["Team"]))  # Home team
             selected_teams.append((selected_teams_sample[1]["Team"], choosen))  # Away team
@@ -376,7 +397,6 @@ elif tournament_selected == "UEL":
 
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    #random.shuffle(final_fixture)  # Optionally shuffle the final fixture
     for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
@@ -609,11 +629,8 @@ elif tournament_selected == "UECL":
 
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    # random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    #random.shuffle(final_fixture)  # Optionally shuffle the final fixture
     for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
         st.write(f"Match {idx}: {home_bold} vs {away_bold}")
-
-
-
