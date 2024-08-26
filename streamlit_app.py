@@ -170,10 +170,29 @@ if tournament_selected == "UCL":
             selected_teams.append((choosen, selected_teams_sample[0]["Team"]))  # Home team
             selected_teams.append((selected_teams_sample[1]["Team"], choosen))  # Away team
 
+    # Ensure no three consecutive home or away matches
+    final_fixture = []
+    for i in range(len(selected_teams)):
+        home, away = selected_teams[i]
+
+        # Check the last two matches to avoid three consecutive home or away matches
+        if len(final_fixture) >= 2:
+            last_home1, last_away1 = final_fixture[-1]
+            last_home2, last_away2 = final_fixture[-2]
+
+            if (home == choosen and last_home1 == choosen and last_home2 == choosen) or \
+                    (away == choosen and last_away1 == choosen and last_away2 == choosen):
+                # Swap the current match with the next one if available
+                if i < len(selected_teams) - 1:
+                    home, away = selected_teams[i + 1]
+                    selected_teams[i + 1] = selected_teams[i]
+
+        final_fixture.append((home, away))
+
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    random.shuffle(selected_teams)
-    for idx, (home, away) in enumerate(selected_teams, start=1):
+    random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
         st.write(f"Match {idx}: {home_bold} vs {away_bold}")
@@ -334,10 +353,29 @@ elif tournament_selected == "UEL":
             selected_teams.append((choosen, selected_teams_sample[0]["Team"]))  # Home team
             selected_teams.append((selected_teams_sample[1]["Team"], choosen))  # Away team
 
+    # Ensure no three consecutive home or away matches
+    final_fixture = []
+    for i in range(len(selected_teams)):
+        home, away = selected_teams[i]
+
+        # Check the last two matches to avoid three consecutive home or away matches
+        if len(final_fixture) >= 2:
+            last_home1, last_away1 = final_fixture[-1]
+            last_home2, last_away2 = final_fixture[-2]
+
+            if (home == choosen and last_home1 == choosen and last_home2 == choosen) or \
+                    (away == choosen and last_away1 == choosen and last_away2 == choosen):
+                # Swap the current match with the next one if available
+                if i < len(selected_teams) - 1:
+                    home, away = selected_teams[i + 1]
+                    selected_teams[i + 1] = selected_teams[i]
+
+        final_fixture.append((home, away))
+
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    random.shuffle(selected_teams)
-    for idx, (home, away) in enumerate(selected_teams, start=1):
+    random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
         st.write(f"Match {idx}: {home_bold} vs {away_bold}")
@@ -424,10 +462,10 @@ elif tournament_selected == "UECL":
                     "team2": "NK Celje", "points2": 4.5, "country2": "Slovenia"},
         "Match34": {"team1": "Mladá Boleslav", "points1": 7.21, "country1": "Czech Republic",
                     "team2": "Paksi", "points2": 4.375, "country2": "Hungary"},
-        "Match35": {"team1": "Vålerenga", "points1": 6.325, "country1": "Norway",
-                    "team2": "Ararat-Armenia", "points2": 4.55, "country2": "Armenia"},
-        "Match36": {"team1": "Hibernian", "points1": 6.21, "country1": "Scotland",
-                    "team2": "Floriana", "points2": 4.2, "country2": "Malta"}
+        "Match35": {"team1": "Vikingur Reykjavik", "points1": 4, "country1": "Iceland",
+                    "team2": "UE Santa Coloma", "points2": 1.199, "country2": "Andorra"},
+        "Match36": {"team1": "MFK Ruzomberok", "points1": 3.925, "country1": "Slovakia",
+                    "team2": "FC Noah", "points2": 2.125, "country2": "Armenia"}
     }
 
     # List of selected winner teams (using Streamlit's session_state to retain selections)
@@ -547,13 +585,29 @@ elif tournament_selected == "UECL":
             selected_teams.append((choosen, away_team["Team"]))  # choosen team is home
             selected_teams.append((home_team["Team"], choosen))  # choosen team is away
 
+    # Ensure no three consecutive home or away matches
+    final_fixture = []
+    for i in range(len(selected_teams)):
+        home, away = selected_teams[i]
+
+        # Check the last two matches to avoid three consecutive home or away matches
+        if len(final_fixture) >= 2:
+            last_home1, last_away1 = final_fixture[-1]
+            last_home2, last_away2 = final_fixture[-2]
+
+            if (home == choosen and last_home1 == choosen and last_home2 == choosen) or \
+                    (away == choosen and last_away1 == choosen and last_away2 == choosen):
+                # Swap the current match with the next one if available
+                if i < len(selected_teams) - 1:
+                    home, away = selected_teams[i + 1]
+                    selected_teams[i + 1] = selected_teams[i]
+
+        final_fixture.append((home, away))
+
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    random.shuffle(selected_teams)
-    for idx, (home, away) in enumerate(selected_teams, start=1):
+    random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
         st.write(f"Match {idx}: {home_bold} vs {away_bold}")
-
-
-
