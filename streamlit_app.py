@@ -172,6 +172,7 @@ if tournament_selected == "UCL":
 
     # Ensure no three consecutive home or away matches
     final_fixture = []
+    random.shuffle(selected_teams)  # Optionally shuffle the final fixture
     for i in range(len(selected_teams)):
         home, away = selected_teams[i]
 
@@ -191,7 +192,7 @@ if tournament_selected == "UCL":
 
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    #random.shuffle(final_fixture)  # Optionally shuffle the final fixture
     for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
@@ -355,6 +356,7 @@ elif tournament_selected == "UEL":
 
     # Ensure no three consecutive home or away matches
     final_fixture = []
+    random.shuffle(selected_teams)  # Optionally shuffle the final fixture
     for i in range(len(selected_teams)):
         home, away = selected_teams[i]
 
@@ -374,7 +376,7 @@ elif tournament_selected == "UEL":
 
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    #random.shuffle(final_fixture)  # Optionally shuffle the final fixture
     for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
@@ -587,6 +589,7 @@ elif tournament_selected == "UECL":
 
     # Ensure no three consecutive home or away matches
     final_fixture = []
+    random.shuffle(selected_teams)  # Optionally shuffle the final fixture
     for i in range(len(selected_teams)):
         home, away = selected_teams[i]
 
@@ -606,8 +609,11 @@ elif tournament_selected == "UECL":
 
     # Display results
     st.title(f"Fixture for **{choosen}**")
-    random.shuffle(final_fixture)  # Optionally shuffle the final fixture
+    # random.shuffle(final_fixture)  # Optionally shuffle the final fixture
     for idx, (home, away) in enumerate(final_fixture, start=1):
         home_bold = f"**{home}**" if home == choosen else home
         away_bold = f"**{away}**" if away == choosen else away
         st.write(f"Match {idx}: {home_bold} vs {away_bold}")
+
+
+
