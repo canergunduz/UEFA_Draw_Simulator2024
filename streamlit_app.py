@@ -53,66 +53,18 @@ if tournament_selected == "UCL":
                  "Atlético Madrid", "Atalanta", "Juventus", "Benfica", "Arsenal", "Club Brugge",
                  "Shakhtar Donetsk", "AC Milan", "Feyenoord", "Sporting CP Lisbon", "PSV Eindhoven",
                  "Celtic", "AS Monaco", "Aston Villa", "Sturm Graz", "Bologna", "Girona",
-                 "Stuttgart", "Brest"],
+                 "Stuttgart", "Brest", "Lille OSC", "FC Salzburg", "Dinamo Zagreb", "Red Star Belgrade",
+                 "Young Boys", "Slovan Bratislava", "Sparta Praha"],
         "Points": [148, 144, 136, 116, 114, 101, 97, 97, 91, 90, 89, 81, 80, 79, 72, 64, 63, 59, 57, 54.5,
-                   54, 32, 24, 20.86, 14.5, 18.056, 17.897, 17.324, 13.366],
+                   54, 32, 24, 20.86, 14.5, 18.056, 17.897, 17.324, 13.366, 47, 50, 50, 40, 34.5, 30.5, 22.5],
         "Country": ["England", "Germany", "Spain", "France", "England",
                     "Italy", "Germany", "Germany", "Spain", "Germany",
                     "Spain", "Italy", "Italy", "Portugal", "England", "Belgium",
                     "Ukraine", "Italy", "Netherlands", "Portugal", "Netherlands",
                     "Scotland", "France", "England", "Austria", "Italy", "Spain",
-                    "Germany", "France"]
+                    "Germany", "France", "France", "Austria", "Croatia", "Serbia",
+                    "Switzerland", "Slovakia", "Czech Republic"]
     }
-
-
-    # List of new matchups
-    matchups = {
-        "Match1": {"team1": "Slavia Praha", "points1": 53, "country1": "Czech Republic",
-                   "team2": "Lille OSC", "points2": 47, "country2": "France"},
-        "Match2": {"team1": "FC Salzburg", "points1": 50, "country1": "Austria",
-                   "team2": "Dynamo Kyiv", "points2": 26.5, "country2": "Ukraine"},
-        "Match3": {"team1": "Dinamo Zagreb", "points1": 50, "country1": "Croatia",
-                   "team2": "Qarabag FK", "points2": 33, "country2": "Azerbaijan"},
-        "Match4": {"team1": "Red Star Belgrade", "points1": 40, "country1": "Serbia",
-                   "team2": "Bodø/Glimt", "points2": 28, "country2": "Norway"},
-        "Match5": {"team1": "Young Boys", "points1": 34.5, "country1": "Switzerland",
-                   "team2": "Galatasaray", "points2": 31.5, "country2": "Turkey"},
-        "Match6": {"team1": "Slovan Bratislava", "points1": 30.5, "country1": "Slovakia",
-                   "team2": "FC Midtjylland", "points2": 25.5, "country2": "Denmark"},
-        "Match7": {"team1": "Sparta Praha", "points1": 22.5, "country1": "Czech Republic",
-                   "team2": "Malmö FF", "points2": 18.5, "country2": "Sweden"}
-    }
-
-    # List of selected winner teams (using Streamlit's session_state to retain selections)
-    if 'ucl_winners' not in st.session_state:
-        st.session_state.ucl_winners = {}
-
-    # Create dropdown menus for each matchup
-    st.title("Qualification")
-    for matchup, details in matchups.items():
-        team1 = details["team1"]
-        points1 = details["points1"]
-        country1 = details["country1"]
-        team2 = details["team2"]
-        points2 = details["points2"]
-        country2 = details["country2"]
-
-        selected_team = st.selectbox(f"{matchup}: {team1} vs {team2}",
-                                     options=[team1, team2],
-                                     key=f"{matchup}_selectbox")
-
-        # Update the winner team
-        if selected_team == team1:
-            st.session_state.ucl_winners[matchup] = {"Team": team1, "Points": points1, "Country": country1}
-        else:
-            st.session_state.ucl_winners[matchup] = {"Team": team2, "Points": points2, "Country": country2}
-
-    # Add selected winner teams to the existing teams list
-    for ucl_winners in st.session_state.ucl_winners.values():
-        if ucl_winners["Team"] not in ucl_teams["Team"]:
-            ucl_teams["Team"].append(ucl_winners["Team"])
-            ucl_teams["Points"].append(ucl_winners["Points"])
-            ucl_teams["Country"].append(ucl_winners["Country"])
 
     # Create a DataFrame for all teams
     df = pd.DataFrame(ucl_teams)
@@ -409,9 +361,9 @@ elif tournament_selected == "UECL":
 
     # Create a list of tuples from the given data
     uecl_teams = {
-        "Team": [],
-        "Points": [],
-        "Country": []
+        "Team": ["Istanbul Başakşehir","AA Gent"],
+        "Points": [29, 45],
+        "Country": ["Turkey", "Belgium"]
     }
 
     # List of new matchups
@@ -444,14 +396,10 @@ elif tournament_selected == "UECL":
                     "team2": "Servette FC Genève", "points2": 9, "country2": "Switzerland"},
         "Match14": {"team1": "FC København", "points1": 51.5, "country1": "Denmark",
                     "team2": "Kilmarnock", "points2": 7.21, "country2": "Scotland"},
-        "Match15": {"team1": "AA Gent", "points1": 45, "country1": "Belgium",
-                    "team2": "Partizan Belgrade", "points2": 25.5, "country2": "Serbia"},
         "Match16": {"team1": "Fiorentina", "points1": 42, "country1": "Italy",
                     "team2": "Puskás Akadémia", "points2": 4.375, "country2": "Hungary"},
         "Match17": {"team1": "Real Betis", "points1": 33, "country1": "Spain",
                     "team2": "Kryvbas", "points2": 5.6, "country2": "Ukraine"},
-        "Match18": {"team1": "Istanbul Başakşehir", "points1": 29, "country1": "Turkey",
-                    "team2": "St. Patrick's Athletic", "points2": 4, "country2": "Ireland"},
         "Match19": {"team1": "CFR Cluj", "points1": 26.5, "country1": "Romania",
                     "team2": "Pafos", "points2": 4.42, "country2": "Cyprus"},
         "Match20": {"team1": "Legia Warsaw", "points1": 18, "country1": "Poland",
